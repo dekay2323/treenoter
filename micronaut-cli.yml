@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: treenoter
+---
+testFramework: spock 
+sourceLanguage: groovy 
