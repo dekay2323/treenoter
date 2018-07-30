@@ -1,6 +1,9 @@
-package dk.treenoter.web;
+package dk.treenoter.web
 
+import dk.treenoter.adapter.DataAdapter;
 import io.micronaut.context.ApplicationContext
+import io.micronaut.http.HttpRequest
+import io.micronaut.http.client.HttpClient
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.HttpResponse
@@ -10,16 +13,18 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 class GrowerControllerSpec extends Specification {
+    @Shared @AutoCleanup EmbeddedServer server = ApplicationContext.run(EmbeddedServer)
+    @Shared @AutoCleanup HttpClient client = HttpClient.create(server.URL)
 
-    @Shared @AutoCleanup EmbeddedServer embeddedServer = ApplicationContext.run(EmbeddedServer)
-    @Shared @AutoCleanup RxHttpClient client = embeddedServer.applicationContext.createBean(RxHttpClient, embeddedServer.getURL())
+    def "test json create"() {
+        when:
+        DataAdapter createdData = client.toBlocking().retrieve(
+                HttpRequest.POST('/grower/data',
+                        [subject: 'a subject', text: 'some text']), DataAdapter)
 
-
-    void "test index"() {
-        given:
-        HttpResponse response = client.toBlocking().exchange("/grower")
-
-        expect:
-        response.status == HttpStatus.OK
+        then:
+        createdData.id
+        createdData.subject == 'a subject'
+        createdData.text == 'some text'
     }
 }

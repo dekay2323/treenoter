@@ -1,0 +1,36 @@
+package dk.treenoter.adapter
+
+import dk.treenoter.entities.Data
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
+class DataAdapter {
+    String subject
+    String text
+    String id
+
+    String createNewId() {
+        id = UUID.randomUUID().toString()
+    }
+
+    HashMap<String, String> convertToHashmap() {
+        final HashMap<String, String> hashmap = new HashMap<String, String>()
+        hashmap.put('id', id)
+        hashmap.put('subject', subject)
+        hashmap.put('text', text)
+        hashmap
+    }
+    
+    static buildFromHashmap(HashMap<String, String> map) {
+        assert map.get('id')
+        assert map.get('subject')
+        
+        new DataAdapter(id: map.get('id'), 
+                subject: map.get('subject'),
+                text: map.get('text'))
+    }
+    
+    static buildFromEntity(Data data) {
+        buildFromHashmap([id: data.id, subject: data.subject, text: data.text])
+    }
+}
